@@ -6,3 +6,11 @@ GROUP BY properties.id
 HAVING avg(property_reviews.rating) >= 4
 ORDER BY cost_per_night
 LIMIT 10;
+
+-- SELECT properties.id, title, cost_per_night, AVG(rating) AS average_rating
+-- FROM properties
+-- JOIN property_reviews
+-- ON properties.id = property_id
+-- WHERE city = 'Vancouver' AND rating >= 4
+-- GROUP BY properties.id, title, cost_per_night
+-- ORDER BY cost_per_night ASC;
