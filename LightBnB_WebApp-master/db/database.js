@@ -12,7 +12,7 @@ const pool = new Pool({
 
 // the following assumes that you named your connection variable `pool`
 // pool.query(`SELECT title FROM properties LIMIT 10;`).then(response => {console.log(response.rows); process.exit();})
-
+// 1 | Eva Stanley | sebastianguerra@ymail.com | $2a$10$FB/BOAVhpuLvpOREQVmvmezD4ED/.JBIDRh70tGevYzYzQgFId2u.
 
 /// Users
 
@@ -28,7 +28,6 @@ const getUserWithEmail = function(email) {
       if (result.rows.length === 0) {
         return null;
       }
-      console.log(result.rows);
       return result.rows[0];
     })
     .catch((err) => {
@@ -48,7 +47,6 @@ const getUserWithId = function(id) {
       if (result.rows.length === 0) {
         return null;
       }
-      console.log(result.rows);
       return result.rows[0];
     })
     .catch((err) => {
@@ -80,7 +78,25 @@ const addUser = function(user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function(guest_id, limit = 10) {
-  return getAllProperties(null, 2);
+  return pool
+  .query(`
+    SELECT reservations.id, properties.*, AVG(rating)
+    FROM properties
+    JOIN reservations
+    ON properties.id = reservations.property_id
+    JOIN property_reviews
+    ON properties.id = property_reviews.property_id
+    WHERE reservations.guest_id = $1
+    GROUP BY reservations.id, properties.id
+    ORDER BY start_date ASC
+    LIMIT $2
+  `, [guest_id, limit])
+  .then((result) => {
+    return result.rows;
+  })
+  .catch((err) => {
+    console.log("ERROR:", err.message);
+  });
 };
 
 /// Properties
@@ -98,7 +114,7 @@ const getAllProperties = (options, limit = 10) => {
       return result.rows;
     })
     .catch((err) => {
-      console.log(err.message);
+      console.log("ERROR:", err.message);
     });
 };
 
